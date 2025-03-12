@@ -1,0 +1,38 @@
+version: "3.9"
+
+x-services:
+  trino-service: &trino-service
+    profiles: ["trino-elt"]
+    image: sldatacenter/trino-elt:dev
+    working_dir: /etc/trino/
+    networks:
+      - infra-internal
+    env_file:
+      - ./init/trino-elt/.env
+services:
+  trino-coordinator-elt:
+    <<: *trino-service
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - $PWD/local/init/trino-elt/coordinator:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino-elt/certs:/etc/trino/certs
+  trino-worker-elt-1:
+    <<: *trino-service
+    volumes:
+      - $PWD/local/init/trino-elt/worker-1:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino-elt/certs:/etc/trino/certs
+  trino-worker-elt-2:
+    <<: *trino-service
+    volumes:
+      - $PWD/local/init/trino-elt/worker-2:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino-elt/certs:/etc/trino/certs
+
+networks:
+  infra-internal:
+    name: dev-infra-internal
+    external: true

@@ -1,0 +1,15 @@
+lowercaseOutputName: true
+rules:
+  - pattern: 'trino.failuredetector(.+)'
+
+  - pattern: 'trino.execution<name=QueryManager><>(.*): (.*)'
+    name: trino_execution_queryManager_$1
+    help: "Trino execution QueryManager metric $1"
+    type: GAUGE
+    value: $2
+
+  - pattern: 'trino.memory<name=ClusterMemoryManager><>(.*): (.*)'
+    name: trino_memory_clusterMemoryManager_$1
+    help: "Trino memory ClusterMemoryManager metric $1"
+    type: GAUGE
+    value: $2

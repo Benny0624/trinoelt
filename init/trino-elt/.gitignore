@@ -1,0 +1,11 @@
+coordinator/.credentials/
+coordinator/certs/
+coordinator/data/
+worker-1/.credentials/
+worker-1/certs/
+worker-1/data/
+worker-2/.credentials/
+worker-2/certs/
+worker-2/data/
+certs/
+.env
