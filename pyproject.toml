@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "benny-trino-test"
+version = "0.1.0"
+description = ""
+authors = ["Benny Xu"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+pre-commit = "^3.4.0"
+
+[tool.isort]
+profile = "black"
+src_paths = [
+  "benny-trino",
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

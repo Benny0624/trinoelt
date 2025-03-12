@@ -1,0 +1,36 @@
+x-services:
+  trino-service: &trino-service
+    profiles: ["trino"]
+    image: benny-trino/trino:dev
+    working_dir: /etc/trino/
+    networks:
+      - infra-internal
+    env_file:
+      - ./init/trino/.env
+services:
+  trino-coordinator:
+    <<: *trino-service
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - $PWD/local/init/trino/coordinator:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino/certs:/etc/trino/certs
+  trino-worker-1:
+    <<: *trino-service
+    volumes:
+      - $PWD/local/init/trino/worker-1:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino/certs:/etc/trino/certs
+  trino-worker-2:
+    <<: *trino-service
+    volumes:
+      - $PWD/local/init/trino/worker-2:/etc/trino/
+      - $PWD/.credentials:/etc/trino/.credentials
+      - $PWD/local/init/trino/certs:/etc/trino/certs
+
+networks:
+  infra-internal:
+    name: dev-infra-internal
+    external: true
