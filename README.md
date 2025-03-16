@@ -8,21 +8,28 @@ You can generate a self-signed certificate using the following command, DO NOT u
 ## Create directory for certs
 mkdir ./local/init/trino/certs/
 
+## Generate key and create Keystore
 keytool -genkeypair -alias trino -keyalg RSA -keystore ./local/init/trino/certs/keystore.jks \
 -dname "CN=coordinator, OU=datalake, O=dataco, L=Sydney, ST=NSW, C=AU" \
 -ext san=dns:coordinator,dns:coordinator.presto,dns:coordinator.presto.svc,dns:coordinator.presto.svc.cluster.local,dns:coordinator-headless,dns:coordinator-headless.presto,dns:coordinator-headless.presto.svc,dns:coordinator-headless.presto.svc.cluster.local,dns:localhost,dns:trino-proxy,ip:127.0.0.1,ip:192.168.64.5,ip:192.168.64.6 \
 -storepass password
 
+## Export liscence from Keystore
 keytool -exportcert -file ./local/init/trino/certs/trino.cer -alias trino -keystore ./local/init/trino/certs/keystore.jks -storepass password
 
+## Import liscence to Truststore
 keytool -import -v -trustcacerts -alias trino_trust -file ./local/init/trino/certs/trino.cer -keystore ./local/init/trino/certs/truststore.jks -storepass password -keypass password -noprompt
 
+## Check liscence in Keystore
 keytool -keystore ./local/init/trino/certs/keystore.jks -exportcert -alias trino -storepass password| openssl x509 -inform der -text
 
+## Transform JKS Keystore to PKCS12
 keytool -importkeystore -srckeystore ./local/init/trino/certs/keystore.jks -destkeystore ./local/init/trino/certs/trino.p12 -srcstoretype jks -deststoretype pkcs12 -srcstorepass password -deststorepass password
 
+## Transform PKCS12 Keystore to PEM
 openssl pkcs12 -in ./local/init/trino/certs/trino.p12 -out ./local/init/trino/certs/trino.pem -passin pass:password -passout pass:password
 
+## Transform DER Keystore to CRT
 openssl x509 -in ./local/init/trino/certs/trino.cer -inform DER -out ./local/init/trino/certs/trino.crt
 ```
 
@@ -47,7 +54,7 @@ curl -s -o trino https://repo1.maven.org/maven2/io/trino/trino-cli/443/trino-cli
 chmod +x ./trino
 
 # Add new user to password file
-htpasswd -B -C 10 local/init/trino-elt/coordinator/password.db <user_name>
+htpasswd -B -C 10 local/init/trino/coordinator/password.db <user_name>
 
 # Set password for newly created account
 ## password saved in password.db
@@ -145,30 +152,6 @@ trino> show catalogs;
  system
 ```
 
-#### Tidb
-```
-# tidb.properties
-connector.name=mysql
-connection-url=jdbc:mysql://tidb:4000
-connection-user=root
-connection-password=
-```
-```
-trino> show catalogs;
- Catalog
-----------
- tidb
- system
-```
-
-##### IMPORTANT
-```
-# if you query local tidb encouter below,
-# please set tidb_enable_noop_functions to true like below in local tidb
-Query 20250115_082700_00029_z9efk failed: function READ ONLY has only noop implementation in tidb now, use tidb_enable_noop_functions to enable these functions
-
-SET GLOBAL tidb_enable_noop_functions = 1;
-```
 
 ## Trino Query
 ### Show Schema
